@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         myQueention.setText(sbb.toString());
     }
 
-    //顯示正確可選答案 ans
+    //顯示正確可選答案 ans 
     public void newChooseAns() {
         int x = (int) (m.random() * 4 + 1); //1 - 4變數
         while (x == 0) {
