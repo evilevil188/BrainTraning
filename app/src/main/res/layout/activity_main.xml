@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.demoapp.keane.braintraning.MainActivity">
+
+    <TextView
+        android:id="@+id/myResult"
+        android:layout_width="190dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="34dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:text="Worng"
+        android:textSize="60sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.415"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/myAns1button"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="50dp"
+        android:background="@color/colorAccent"
+        android:onClick="sendAns1"
+        android:text="5"
+        android:textSize="72sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/myAns2button"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <Button
+        android:id="@+id/myAns3button"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="-13dp"
+        android:background="@android:color/holo_blue_bright"
+        android:onClick="sendAns3"
+        android:text="1"
+        android:textSize="72sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/myAns4button"
+        app:layout_constraintLeft_toRightOf="@+id/myAns1button" />
+
+    <Button
+        android:id="@+id/myAns2button"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="206dp"
+        android:layout_marginLeft="50dp"
+        android:background="@color/colorPrimary"
+        android:onClick="sendAns2"
+        android:text="2"
+        android:textSize="72sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <Button
+        android:id="@+id/myAns4button"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="206dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="8dp"
+        android:background="@android:color/holo_green_light"
+        android:onClick="sendAns4"
+        android:text="9"
+        android:textSize="72sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toRightOf="@+id/myAns2button"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:id="@+id/myTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="35dp"
+        android:layout_marginLeft="16dp"
+        android:background="@android:color/holo_orange_light"
+        android:text="TextView"
+        android:textSize="52sp"
+        app:layout_constraintBottom_toTopOf="@+id/myAns1button"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:text="0s" />
+
+    <TextView
+        android:id="@+id/myQueention"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="3 + 2 "
+        android:textSize="48sp"
+        android:layout_marginRight="160dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="325dp"
+        app:layout_constraintBottom_toTopOf="@+id/myResult" />
+
+    <TextView
+        android:id="@+id/mySource"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorButtonNormal"
+        android:text="0 / 1"
+        android:textSize="52sp"
+        android:layout_marginRight="175dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="510dp" />
+
+</android.support.constraint.ConstraintLayout>
