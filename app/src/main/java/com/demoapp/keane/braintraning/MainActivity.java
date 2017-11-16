@@ -2,206 +2,183 @@ package com.demoapp.keane.braintraning;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Interpolator;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
-    TextView myTimer, myResult, myQueention , mySource;
-    Button myAns1, myAns2, myAns3, myAns4;
-    private Math m;
-    private String tureAns = "5";
-    private CountDownTimer countDownTimer;
-    private StringBuilder sb = new StringBuilder(10);       //CoundDownTimer
-    private StringBuilder ans = new StringBuilder(10);      //記錄答案
-    private Boolean isPushButton = false;                   //是否已按按鈕了？
-    private int queentionNumber = 0;                     //目前總題數
-    private int rightNumber =0;
+    Button myStartBtn;
+    Button playAgainButton;
+    RelativeLayout gameRelativeLayout;
+    TextView sumTextView;
+    TextView timerTextView;
+    TextView pointsTextView;
+    int locationOfCorrectAnswer = 0;
+    int correctAnswer = 0;
+    StringBuilder tempSb = new StringBuilder(10);
+    ArrayList<Integer> answerArray = new ArrayList<Integer>();
+    Button button0;
+    Button button1;
+    Button button2;
+    Button button3;
+    int score = 0;
+    int numberOfQuestions = 0;
+    TextView resultTextView;
+    CountDownTimer countDownTimer;
+
+
+    //    View.VISIBLE--->可見
+//    View.INVISIBLE--->不可見，但這個View仍然會佔用在xml檔中所分配的佈局空間，不重新layout
+//    View.GONE---->不可見，但這個View在ViewGroup中不保留位置，會重新layout，不再佔用空間，那後面的view就會取代他的位置，
+    public void start(View view) {
+        myStartBtn.setVisibility(View.INVISIBLE);
+        gameRelativeLayout.setVisibility(RelativeLayout.VISIBLE);
+        playAgain(findViewById(R.id.playAgainButton));
+        // 也可執行
+        //        myStartBtn.setVisibility(view.INVISIBLE);
+        //        gameRelativeLayout.setVisibility(View.VISIBLE);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        myTimer = (TextView) findViewById(R.id.myTimer);
-        myAns1 = (Button) findViewById(R.id.myAns1button);
-        myAns2 = (Button) findViewById(R.id.myAns2button);
-        myAns3 = (Button) findViewById(R.id.myAns3button);
-        myAns4 = (Button) findViewById(R.id.myAns4button);
-        myQueention = (TextView) findViewById(R.id.myQueention);
-        mySource = (TextView) findViewById(R.id.mySource);
-        myResult = (TextView) findViewById(R.id.myResult);
-        myResult.setVisibility(View.INVISIBLE); //消失
-        controlTimer();//開始倒數
+        myStartBtn = (Button) findViewById(R.id.myStrartButton);
+        gameRelativeLayout = (RelativeLayout) findViewById(R.id.gameRelativeLayout);
+        playAgainButton = (Button) findViewById(R.id.playAgainButton);
+        sumTextView = (TextView) findViewById(R.id.sumTextView);
+        timerTextView = (TextView) findViewById(R.id.timerTextView);
+        pointsTextView = (TextView) findViewById(R.id.pointsTextView);
+        button0 = (Button) findViewById(R.id.button0);
+        button1 = (Button) findViewById(R.id.button1);
+        button2 = (Button) findViewById(R.id.button2);
+        button3 = (Button) findViewById(R.id.button3);
+        resultTextView = (TextView) findViewById(R.id.resultTextView);
+
+
     }
 
-    public void setSource(){
-        StringBuilder source = new StringBuilder(10);
-        source.append(rightNumber).append("/").append(queentionNumber);
-        mySource.setText(source.toString());
+    //更新button顯示文字
+    public void changeButtonText() {
+        button0.setText(Integer.toString(answerArray.get(0)));
+        button1.setText(Integer.toString(answerArray.get(1)));
+        button2.setText(Integer.toString(answerArray.get(2)));
+        button3.setText(Integer.toString(answerArray.get(3)));
     }
-    //計時器
-    public void controlTimer() {
-        countDownTimer = new CountDownTimer(30000 + 200, 1000) {
+
+    //答案亂數的範圍
+    public int answerRange() {
+        int randomRange;
+        if (correctAnswer > 99) {
+            randomRange = 199;
+        } else {
+            randomRange = 99;
+        }
+        return randomRange;
+    }
+
+    //產生新的答案
+    public void generateAnswer(Random random) {
+        int incorrectAnswer = 0; //假的答案
+        locationOfCorrectAnswer = random.nextInt(4);//隨機出1-4，並放入locationOfCorrectAnswer
+        for (int i = 0; i < 4; i++) {
+            if (i == locationOfCorrectAnswer) {
+                answerArray.add(correctAnswer); //將正確答案放入該按鈕中locationOfCorrectAnswer
+            } else {
+                incorrectAnswer = random.nextInt(answerRange());
+                while (incorrectAnswer == correctAnswer) {        //判斷隨機取假答案，是否與真答案相同
+                    incorrectAnswer = random.nextInt(answerRange());//相同則再重取一次
+                }
+                answerArray.add(incorrectAnswer);
+            }
+        }
+        changeButtonText();
+        answerArray.clear(); //重置
+        // 不重置Array會一直變長且因為程式寫照死。
+        // 只更新button文字是array.get(0)～array.get(3)
+    }
+
+    //產生新的問題
+    public void generateQuestion() {
+        Random rand = new Random();
+        int x = rand.nextInt(99);
+        int y = rand.nextInt(99);
+        if (x > y) {
+            tempSb.append(x).append("+").append(y);
+            correctAnswer = x + y;
+        } else {
+            tempSb.append(y).append("-").append(x);
+            correctAnswer = y - x;
+        }
+        Log.i("generateQuestion()", "correctAnswer= " + correctAnswer);
+        sumTextView.setText(tempSb.toString());
+        tempSb.setLength(0);
+        generateAnswer(rand);
+    }
+
+    //按下四個按鈕其中之一後的事件處理
+    public void chooseAnswer(View view) {
+        Log.i("chooseAnswer", "locationOfCorrectAnswer= " + locationOfCorrectAnswer +
+                "\nview.getTag().toString()=" + view.getTag().toString());
+        //用view.getTag().toString()抓使用者按下那個按鈕
+        //判斷是否按下有正確答案的按鈕
+        if (view.getTag().toString().equals(Integer.toString(locationOfCorrectAnswer))) {
+            score++;
+            resultTextView.setText("Corrent");
+        } else {
+            Log.i("Wrong", "wrong");
+            resultTextView.setText("Wrong");
+        }
+        numberOfQuestions++;
+        tempSb.append(score).append(" / ").append(numberOfQuestions);
+        pointsTextView.setText(tempSb.toString());
+        tempSb.setLength(0);
+        generateQuestion();
+    }
+
+    public void buttonEnable(boolean enable) {
+        button0.setEnabled(enable);
+        button1.setEnabled(enable);
+        button2.setEnabled(enable);
+        button3.setEnabled(enable);
+    }
+
+    public void reSet(View view) {
+        score = 0;
+        numberOfQuestions = 0;
+        timerTextView.setText("30s");
+        pointsTextView.setText("0 / 0");
+        resultTextView.setText("");
+        playAgainButton.setVisibility(view.INVISIBLE);
+        buttonEnable(true);
+    }
+
+    public void playAgain(View view) {
+        reSet(view);
+        generateQuestion();
+        countDownTimer = new CountDownTimer(30200, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                sb.append(millisUntilFinished / 1000).append("s");
-                myTimer.setText(sb.toString()); //setText 不可是int會報錯
-                sb.setLength(0);
+                Log.i("onTick()", "mill = " + millisUntilFinished);
+                timerTextView.setText(String.valueOf(millisUntilFinished / 1000) + "s");
             }
 
             @Override
             public void onFinish() {
-                sb.append(0);
-                buttonEnble(false); //時間結束，按鈕不給按
-                showResult();
-                myTimer.setText(sb.toString());
+                buttonEnable(false);
+                playAgainButton.setVisibility(View.VISIBLE);
+                timerTextView.setText("0s");
+                resultTextView.setText("Your score:" + Integer.toString(score) + "/"
+                        + Integer.toString(numberOfQuestions));
             }
         }.start();
     }
-
-    //顯示答題數、答對的題數
-    public void showResult(){
-        //利用Toast的靜態函式makeText來建立Toast物件
-        Toast toast = Toast.makeText(MainActivity.this,
-                "total = " + queentionNumber +" \nRight = " + rightNumber, Toast.LENGTH_LONG);
-        //顯示Toast
-        toast.show();
-    }
-
-    //處理按鈕事件
-    public void processOnClick(View v, Button btn) {
-        if (!isPushButton) {
-            isPushButton = true;
-            ans.setLength(0);
-            ans.append(btn.getText());
-            Log.i("wen " , "ans = " + ans.toString());
-            buttonEnble(false);
-            ans(v);
-        }
-    }
-
-    //在xml裡的onClick()裡面若有設置a方法，就需要有a(View v) 方法實作
-    public void sendAns1(View v) {
-        processOnClick(v, myAns1);
-    }
-
-    public void sendAns2(View v) {
-        processOnClick(v, myAns2);
-    }
-
-    public void sendAns3(View v) {
-        processOnClick(v, myAns3);
-    }
-
-    public void sendAns4(View v) {
-        processOnClick(v, myAns4);
-    }
-
-    //比對答案
-    public void ans(View v) {
-        Log.i("wen " , "tureAns = " + tureAns+" ,  ans = " + ans.toString());
-        if (tureAns.equals(ans.toString())) {
-            myResult.setText("Right");
-            rightNumber++;
-        } else {
-            myResult.setText("Wrong");
-        }
-        myResult.setVisibility(v.VISIBLE);//顯示
-        newQueention();
-        newChooseAns();
-        queentionNumber++;
-        setSource();
-        isPushButton = false;
-        buttonEnble(true);
-    }
-
-    //當其中有一按鈕被按下，其它按鈕就不能按了
-    public void buttonEnble(Boolean enable) {
-        myAns1.setEnabled(enable);
-        myAns2.setEnabled(enable);
-        myAns3.setEnabled(enable);
-        myAns4.setEnabled(enable);
-    }
-
-    //亂數產生新題目 queention
-    public void newQueention() {
-        StringBuilder sbb = new StringBuilder(10);
-        int x = (int) (m.random() * 98 + 1);
-        int y = (int) (m.random() * 98 + 1);
-        if (x > y) {
-            sbb.append(x).append("-").append(y);
-            tureAns = Integer.toString(x - y);
-
-        } else {
-            sbb.append(x).append("+").append(y);
-            tureAns = Integer.toString(x + y);
-        }
-        myQueention.setText(sbb.toString());
-    }
-
-    //顯示正確可選答案 ans 
-    public void newChooseAns() {
-        int x = (int) (m.random() * 4 + 1); //1 - 4變數
-        while (x == 0) {
-            x = (int) (m.random() * 4 + 1);
-        }
-        switch (x) {
-            case 1:
-                myAns1.setText(tureAns);
-                setOtherButtonText(myAns2,myAns3,myAns4 );
-                break;
-            case 2:
-                myAns2.setText(tureAns);
-                setOtherButtonText(myAns1,myAns3,myAns4 );
-                break;
-            case 3:
-                myAns3.setText(tureAns);
-                setOtherButtonText(myAns2,myAns1,myAns4 );
-                break;
-            case 4:
-                myAns4.setText(tureAns);
-                setOtherButtonText(myAns2,myAns3,myAns1 );
-                break;
-            default:
-                break;
-        }
-    }
-
-    //顯示除正確答案外，其它新的可選答案
-    public void setOtherButtonText(Button btnA, Button btnB, Button btnC) {
-        int xx = 0; //(int) (m.random() * 99 + 1);
-        int r;  //產生亂數的範圍
-        if(tureAns.length() == 2){
-            r = 99;
-        }else{
-            r= 199;
-        }
-        for (int i = 0; i < 3; i++) {
-            xx = (int) (m.random() * r + 1);
-            while (tureAns.equals(Integer.toString(xx)) ) {
-                xx = (int) (m.random() *r + 1);
-            }
-            switch (i){
-                case 0:
-                    btnA.setText(Integer.toString(xx));
-                    break;
-                case 1:
-                    btnB.setText(Integer.toString(xx));
-                    break;
-                case 2:
-                    btnC.setText(Integer.toString(xx));
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-
 }
